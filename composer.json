@@ -1,0 +1,25 @@
+{
+    "name": "brick/event",
+    "description": "Event dispatching and listening library",
+    "type": "library",
+    "keywords": [
+        "Brick",
+        "Event",
+        "EventDispatcher",
+        "EventListener"
+    ],
+    "license": "MIT",
+    "require": {
+        "php": ">=5.5"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "*",
+        "satooshi/php-coveralls": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Brick\\Event\\": "src/",
+            "Brick\\Event\\Tests\\": "tests/"
+        }
+    }
+}
