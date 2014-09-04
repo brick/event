@@ -6,7 +6,7 @@ use Brick\Event\Event;
 use Brick\Event\EventListener;
 
 /**
- * Listener that logs all received events.
+ * Listener that logs all received events for testing purposes.
  */
 class LoggerListener implements EventListener
 {

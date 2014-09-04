@@ -3,17 +3,17 @@
 namespace Brick\Event;
 
 /**
- * Base class that all events must extend.
+ * Base class that events must extend.
  */
 abstract class Event
 {
     /**
-     * @var bool
+     * @var boolean
      */
     private $propagationStopped = false;
 
     /**
-     * @return bool
+     * @return boolean
      */
     final public function isPropagationStopped()
     {

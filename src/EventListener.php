@@ -3,7 +3,7 @@
 namespace Brick\Event;
 
 /**
- * Interface that all event listeners must implement.
+ * Interface that event listeners must implement.
  */
 interface EventListener
 {

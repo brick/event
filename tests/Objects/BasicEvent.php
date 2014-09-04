@@ -5,7 +5,7 @@ namespace Brick\Event\Tests\Objects;
 use Brick\Event\Event;
 
 /**
- * Basic, empty event.
+ * Empty event for testing purposes.
  */
 class BasicEvent extends Event
 {
