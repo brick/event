@@ -62,16 +62,13 @@ final class EventDispatcher
     }
 
     /**
-     * Dispatches an event to the registered listeners.
+     * Returns all registered listeners.
      *
-     * The highest priority listeners will be called first.
-     * If two listeners have the same priority, the first registered will be called first.
+     * Listeners are returned in the order they will be called.
      *
-     * @param Event $event The event to dispatch.
-     *
-     * @return EventDispatcher This instance, for chaining.
+     * @return EventListener[]
      */
-    public function dispatch(Event $event)
+    public function getListeners()
     {
         $listeners = [];
         $index = $count = count($this->listeners);
@@ -83,12 +80,26 @@ final class EventDispatcher
 
         krsort($listeners);
 
-        foreach ($listeners as $listener) {
+        return array_values($listeners);
+    }
+
+    /**
+     * Dispatches an event to the registered listeners.
+     *
+     * The highest priority listeners will be called first.
+     * If two listeners have the same priority, the first registered will be called first.
+     *
+     * @param Event $event The event to dispatch.
+     *
+     * @return EventDispatcher This instance, for chaining.
+     */
+    public function dispatch(Event $event)
+    {
+        foreach ($this->getListeners() as $listener) {
             if ($event->isPropagationStopped()) {
                 break;
             }
 
-            /** @var EventListener $listener */
             $listener->handleEvent($event);
         }
 
