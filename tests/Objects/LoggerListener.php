@@ -2,8 +2,6 @@
 
 namespace Brick\Event\Tests\Objects;
 
-use Brick\Event\Event;
-
 /**
  * Listener that logs all received events for testing purposes.
  */
@@ -12,7 +10,7 @@ class LoggerListener
     /**
      * All the events this listener has received.
      *
-     * @var Event[]
+     * @var object[]
      */
     private $receivedEvents = [];
 
@@ -24,19 +22,23 @@ class LoggerListener
     private $stopPropagation = false;
 
     /**
-     * @param Event $event
+     * @param object $event
+     *
+     * @return false|null
      */
-    public function __invoke(Event $event)
+    public function __invoke($event)
     {
         $this->receivedEvents[] = $event;
 
         if ($this->stopPropagation) {
-            $event->stopPropagation();
+            return false;
         }
+
+        return null;
     }
 
     /**
-     * @return Event[]
+     * @return object[]
      */
     public function getReceivedEvents()
     {

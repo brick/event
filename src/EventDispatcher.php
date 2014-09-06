@@ -8,29 +8,37 @@ namespace Brick\Event;
 final class EventDispatcher
 {
     /**
-     * The event listeners, indexed by type.
+     * The event listeners, indexed by type and priority.
      *
-     * @var array<string, array<integer, callable>>
+     * @var array
      */
     private $listeners = [];
 
     /**
+     * A cache of the sorted event listeners, indexed by type.
+     *
+     * @var array
+     */
+    private $sorted = [];
+
+    /**
      * Adds an event listener.
      *
-     * If the listener is already registered for this type, it will be registered again.
-     * Several instances of a same listener can be registered for a single type.
+     * If the listener is already registered for this type, it will be registered again:
+     * several instances of a same listener can be registered for a single type.
+     *
+     * Every listener can stop event propagation by returning `false`.
      *
      * @param string   $type     The event type.
      * @param callable $listener The event listener.
      * @param integer  $priority The higher the priority, the earlier the listener will be called in the chain.
      *
-     * @return EventDispatcher This instance, for chaining.
+     * @return void
      */
     public function addListener($type, callable $listener, $priority = 0)
     {
-        $this->listeners[$type][] = [$listener, $priority];
-
-        return $this;
+        $this->listeners[$type][$priority][] = $listener;
+        unset($this->sorted[$type]);
     }
 
     /**
@@ -39,26 +47,41 @@ final class EventDispatcher
      * If the listener is not registered for this type, this method does nothing.
      * If the listener has been registered several times for this type, all instances are removed.
      *
+     * The listener will be called with 3 parameters:
+     *
+     * - The event : `object`
+     * - The event type : `string`
+     * - The event dispatcher: `EventDispatcher`
+     *
      * @param string   $type     The event type.
      * @param callable $listener The event listener.
      *
-     * @return EventDispatcher This instance, for chaining.
+     * @return void
      */
     public function removeListener($type, callable $listener)
     {
         if (isset($this->listeners[$type])) {
-            foreach ($this->listeners[$type] as $key => $value) {
-                if ($value[0] === $listener) {
-                    unset($this->listeners[$type][$key]);
+            foreach ($this->listeners[$type] as $priority => $listeners) {
+                foreach ($this->listeners[$type][$priority] as $key => $instance) {
+                    if ($instance === $listener) {
+                        unset($this->listeners[$type][$priority][$key]);
+                        unset($this->sorted[$type]);
+
+                        if (empty($this->listeners[$type][$priority])) {
+                            unset($this->listeners[$type][$priority]);
+
+                            if (empty($this->listeners[$type])) {
+                                unset($this->listeners[$type]);
+                            }
+                        }
+                    }
                 }
             }
         }
-
-        return $this;
     }
 
     /**
-     * Returns all registered listeners.
+     * Returns all registered listeners for the given type.
      *
      * Listeners are returned in the order they will be called.
      *
@@ -72,16 +95,29 @@ final class EventDispatcher
             return [];
         }
 
-        $listeners = [];
-        $index = $count = count($this->listeners[$type]);
-
-        foreach ($this->listeners[$type] as list($listener, $priority)) {
-            $listeners[$priority * $count + --$index] = $listener;
+        if (! isset($this->sorted[$type])) {
+            $this->sorted[$type] = $this->sortListeners($this->listeners[$type]);
         }
 
-        krsort($listeners);
+        return $this->sorted[$type];
+    }
 
-        return array_values($listeners);
+    /**
+     * Returns all registered listeners indexed by type.
+     *
+     * Listeners are returned in the order they will be called for each type.
+     *
+     * @return callable[][]
+     */
+    public function getAllListeners()
+    {
+        foreach ($this->listeners as $type => $listeners) {
+            if (! isset($this->sorted[$type])) {
+                $this->sorted[$type] = $this->sortListeners($listeners);
+            }
+        }
+
+        return $this->sorted;
     }
 
     /**
@@ -90,25 +126,29 @@ final class EventDispatcher
      * The highest priority listeners will be called first.
      * If several listeners have the same priority, they will be called in the order they have been registered.
      *
-     * @param string     $type  The event type.
-     * @param Event|null $event The event to dispatch, or null to create an empty event.
+     * @param string $type  The event type.
+     * @param object $event The event to dispatch.
      *
-     * @return Event The dispatched event.
+     * @return void
      */
-    public function dispatch($type, Event $event = null)
+    public function dispatch($type, $event)
     {
-        if ($event === null) {
-            $event = new Event();
-        }
-
         foreach ($this->getListeners($type) as $listener) {
-            if ($event->isPropagationStopped()) {
+            if ($listener($event, $type, $this) === false) {
                 break;
             }
-
-            $listener($event);
         }
+    }
 
-        return $event;
+    /**
+     * @param string $listenersByPriority
+     *
+     * @return array
+     */
+    private function sortListeners($listenersByPriority)
+    {
+        krsort($listenersByPriority);
+
+        return call_user_func_array('array_merge', $listenersByPriority);
     }
 }

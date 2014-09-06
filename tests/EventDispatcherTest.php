@@ -2,7 +2,6 @@
 
 namespace Brick\Event\Tests;
 
-use Brick\Event\Event;
 use Brick\Event\EventDispatcher;
 use Brick\Event\Tests\Objects\LoggerListener;
 
@@ -132,6 +131,20 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
             'y' => [$c, $b, $a, $a, $c],
             'z' => [$a, $c, $b]
         ]);
+
+        $dispatcher->addListener('z', $c, -1);
+        $this->assertListenersEqual($dispatcher, [
+            'x' => [$c, $a, $b, $a, $c, $b],
+            'y' => [$c, $b, $a, $a, $c],
+            'z' => [$a, $c, $c, $b]
+        ]);
+
+        $dispatcher->removeListener('z', $c);
+        $this->assertListenersEqual($dispatcher, [
+            'x' => [$c, $a, $b, $a, $c, $b],
+            'y' => [$c, $b, $a, $a, $c],
+            'z' => [$a, $b]
+        ]);
     }
 
     public function testDispatch()
@@ -144,9 +157,9 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
         $dispatcher->addListener('x', $listener1);
         $dispatcher->addListener('x', $listener2);
 
-        $event1 = new Event();
-        $event2 = new Event();
-        $event3 = new Event();
+        $event1 = new \StdClass();
+        $event2 = new \StdClass();
+        $event3 = new \StdClass();
 
         $dispatcher->dispatch('x', $event1);
 
@@ -160,10 +173,11 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
         $this->assertSame([$event1, $event2], $listener1->getReceivedEvents());
         $this->assertSame([$event1], $listener2->getReceivedEvents());
 
-        $event3->stopPropagation();
+        $listener1->setStopPropagation(false);
+        $listener2->setStopPropagation(true);
         $dispatcher->dispatch('x', $event3);
 
-        $this->assertSame([$event1, $event2], $listener1->getReceivedEvents());
-        $this->assertSame([$event1], $listener2->getReceivedEvents());
+        $this->assertSame([$event1, $event2, $event3], $listener1->getReceivedEvents());
+        $this->assertSame([$event1, $event3], $listener2->getReceivedEvents());
     }
 }

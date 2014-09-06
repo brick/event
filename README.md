@@ -9,8 +9,7 @@ A simple event dispatching and listening mechanism.
 Introduction
 ------------
 
-This library helps to write extensible software by plugging in external objects that will
-listen to events dispatched by your application.
+This library helps to write extensible software by plugging in external listeners to events dispatched by an application.
 
 Installation
 ------------
@@ -32,80 +31,65 @@ This library requires PHP 5.5 or higher. [HHVM](http://hhvm.com/) is officially 
 Overview
 --------
 
-### Classes
-
-There are three classes in the package:
-
-- `Event`: base class that events must extend
-- `EventListener`: interface that event listeners must implement
-- `EventDispatcher`: registers the listeners and dispatches the events
-
-These classes belong to the `Brick\Event` namespace.
+This package provides the `EventDispatcher`.
+The dispatcher dispatches *events*, that can be any `object`.
+The events are intercepted by *listeners*, that can be any `callable`.
 
 ### Basic usage
 
-Let's create a couple of events:
-
-    use Brick\Event\Event;
-
-    class StartupEvent extends Event
-    {
-    }
-
-    class ShutdownEvent extends Event
-    {
-    }
-
-And a listener for these events:
-
-    use Brick\Event\Event;
-    use Brick\Event\EventListener;
-
-    class StartupShutdownListener implements EventListener
-    {
-        public function handleEvent(Event $event)
-        {
-            if ($event instanceof StartupEvent) {
-                echo 'Caught startup event';
-            }
-            if ($event instanceof ShutdownEvent) {
-                echo 'Caught shutdown event';
-            }
-        }
-    }
-
-Now, let's instantiate a dispatcher and run it:
+Let's instantiate a dispatcher:
 
     use Brick\Event\EventDispatcher;
     
     $dispatcher = new EventDispatcher();
-    $dispatcher->addListener(new StartupShutdownListener());
-    
-    $dispatcher->dispatch(new StartupEvent()); // will display "Caught startup event"
-    $dispatcher->dispatch(new ShutdownEvent()); // will display "Caught shutdown event"
 
-When an event is dispatched, all listeners are called without distinction. Each listener must check if the event
-is relevant to it using `instanceof`.
+And add a few listeners:
+
+    $dispatcher->addListener('startup', function() {
+        echo 'Caught startup event';
+    });
+    
+    $dispatcher->addListener('shutdown', function() {
+        echo 'Caught shutdown event';
+    });
+
+Now, let's dispatch events. Typically, you'll create event classes to store information about what's occurring in your application, but for now, let's just dispatch a simple `StdClass`:
+
+    $dispatcher->dispatch('startup', new \StdClass()); // will display "Caught startup event"
+    $dispatcher->dispatch('shutdown', new \StdClass()); // will display "Caught shutdown event"
+
+When an event is dispatched, the dispatcher will look for listeners registered for the given event type, and call each of them with 3 parameters:
+
+- The event : `object`
+- The event type : `string`
+- The event dispatcher : `EventDispatcher`
+
+If we need this information, we can rewrite our listeners like this:
+
+    function($event, $type, $dispatcher) { ... }
+
+In our example, `$event` would contain the `StdClass` object, and `$type` would contain `'startup'` or `'shutdown'`.
+
+All the listeners registered for the given event type will be invoked, ordered by priority, unless one of the listeners stops the propagation.
 
 ### Setting priorities
 
 By default, the listeners are called in the order they have been registered. It is possible to bypass this
 natural order by passing a priority to `addListener()`:
 
-    $dispatcher->addListener(new StartupShutdownListener(), 10);
+    $dispatcher->addListener('startup', function() { ... }, 10);
 
 The default priority is `0`. The listeners with the highest priority will be called first in the chain.
 Two listeners with the same priority will be called in the order they have been registered.
 
 ### Stopping event propagation
 
-Any listener can decide that the event should not be propagated to further listeners:
+Any listener can decide that the event should not be propagated to further listeners in the chain, by returning `false`:
 
-    public function handleEvent(Event $event)
-    {
+    $dispatcher->addListener('startup', function() {
         // ...
 
-        $event->stopPropagation();
-    }
+        return false;
+    });
 
 The dispatcher will then break the chain and no further listeners will be called for this event.
