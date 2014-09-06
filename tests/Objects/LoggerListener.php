@@ -3,12 +3,11 @@
 namespace Brick\Event\Tests\Objects;
 
 use Brick\Event\Event;
-use Brick\Event\EventListener;
 
 /**
  * Listener that logs all received events for testing purposes.
  */
-class LoggerListener implements EventListener
+class LoggerListener
 {
     /**
      * All the events this listener has received.
@@ -25,9 +24,9 @@ class LoggerListener implements EventListener
     private $stopPropagation = false;
 
     /**
-     * {@inheritdoc}
+     * @param Event $event
      */
-    public function handleEvent(Event $event)
+    public function __invoke(Event $event)
     {
         $this->receivedEvents[] = $event;
 

@@ -3,9 +3,11 @@
 namespace Brick\Event;
 
 /**
- * Base class that events must extend.
+ * An event propagated through the listeners by the dispatcher.
+ *
+ * This class can be extended.
  */
-abstract class Event
+class Event
 {
     /**
      * @var boolean

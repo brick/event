@@ -2,7 +2,7 @@
 
 namespace Brick\Event\Test;
 
-use Brick\Event\Tests\Objects\BasicEvent;
+use Brick\Event\Event;
 
 /**
  * Unit tests for class Event.
@@ -11,7 +11,7 @@ class EventTest extends \PHPUnit_Framework_TestCase
 {
     public function testStopPropagation()
     {
-        $event = new BasicEvent();
+        $event = new Event();
         $this->assertFalse($event->isPropagationStopped());
 
         $event->stopPropagation();
