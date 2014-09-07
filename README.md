@@ -1,7 +1,7 @@
 Brick\Event
 ===========
 
-A simple event dispatching and listening mechanism.
+A simple event dispatching mechanism.
 
 [![Build Status](https://secure.travis-ci.org/brick/event.png)](http://travis-ci.org/brick/event)
 [![Coverage Status](https://coveralls.io/repos/brick/event/badge.png)](https://coveralls.io/r/brick/event)

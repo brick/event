@@ -1,6 +1,6 @@
 {
     "name": "brick/event",
-    "description": "Event dispatching and listening library",
+    "description": "Event dispatching library",
     "type": "library",
     "keywords": [
         "Brick",
