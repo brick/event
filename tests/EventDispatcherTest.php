@@ -3,7 +3,6 @@
 namespace Brick\Event\Tests;
 
 use Brick\Event\EventDispatcher;
-use Brick\Event\Tests\Objects\LoggerListener;
 
 /**
  * Unit tests for class EventDispatcher.

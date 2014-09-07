@@ -1,6 +1,6 @@
 <?php
 
-namespace Brick\Event\Tests\Objects;
+namespace Brick\Event\Tests;
 
 /**
  * Listener that logs all received events for testing purposes.
