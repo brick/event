@@ -245,6 +245,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
             $this->assertSame($parameters, func_get_args());
         });
 
+        array_unshift($parameters, $event);
         call_user_func_array([$dispatcher, 'dispatch'], $parameters);
     }
 }
