@@ -8,11 +8,11 @@ namespace Brick\Event\Tests;
 class LoggerListener
 {
     /**
-     * All the events this listener has received.
+     * All the event parameters this listener has received.
      *
-     * @var object[]
+     * @var array
      */
-    private $receivedEvents = [];
+    private $receivedParameters = [];
 
     /**
      * Whether this listener should stop event propagation after recording the event.
@@ -22,13 +22,11 @@ class LoggerListener
     private $stopPropagation = false;
 
     /**
-     * @param object $event
-     *
      * @return false|null
      */
-    public function __invoke($event)
+    public function __invoke()
     {
-        $this->receivedEvents[] = $event;
+        $this->receivedParameters = array_merge($this->receivedParameters, func_get_args());
 
         if ($this->stopPropagation) {
             return false;
@@ -38,11 +36,11 @@ class LoggerListener
     }
 
     /**
-     * @return object[]
+     * @return array
      */
-    public function getReceivedEvents()
+    public function getReceivedParameters()
     {
-        return $this->receivedEvents;
+        return $this->receivedParameters;
     }
 
     /**

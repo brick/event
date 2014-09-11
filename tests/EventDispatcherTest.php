@@ -27,6 +27,16 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * @param LoggerListener $listener      The logger listener.
+     * @param mixed          ...$parameters The expected logged parameters.
+     */
+    private function assertReceivedParameters(LoggerListener $listener)
+    {
+        $parameters = array_slice(func_get_args(), 1);
+        $this->assertSame($parameters, $listener->getReceivedParameters());
+    }
+
     public function testAddRemoveListener()
     {
         $a = function() {};
@@ -196,45 +206,45 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
         $dispatcher->addListener('x', $listener2);
         $dispatcher->addListener('y', $listener2);
 
-        $event1 = new \StdClass();
-        $event2 = new \StdClass();
-        $event3 = new \StdClass();
+        $dispatcher->dispatch('x', '1');
 
-        $dispatcher->dispatch('x', $event1);
+        $this->assertReceivedParameters($listener1, '1');
+        $this->assertReceivedParameters($listener2, '1');
 
-        $this->assertSame([$event1], $listener1->getReceivedEvents());
-        $this->assertSame([$event1], $listener2->getReceivedEvents());
+        $dispatcher->dispatch('y', '2');
 
-        $dispatcher->dispatch('y', $event2);
-        $this->assertSame([$event1], $listener1->getReceivedEvents());
-        $this->assertSame([$event1, $event2], $listener2->getReceivedEvents());
+        $this->assertReceivedParameters($listener1, '1');
+        $this->assertReceivedParameters($listener2, '1', '2');
 
         $listener1->setStopPropagation(true);
-        $dispatcher->dispatch('x', $event2);
+        $dispatcher->dispatch('x', '3');
 
-        $this->assertSame([$event1, $event2], $listener1->getReceivedEvents());
-        $this->assertSame([$event1, $event2], $listener2->getReceivedEvents());
+        $this->assertReceivedParameters($listener1, '1', '3');
+        $this->assertReceivedParameters($listener2, '1', '2');
 
         $listener1->setStopPropagation(false);
         $listener2->setStopPropagation(true);
-        $dispatcher->dispatch('x', $event3);
+        $dispatcher->dispatch('x', '4', '5');
 
-        $this->assertSame([$event1, $event2, $event3], $listener1->getReceivedEvents());
-        $this->assertSame([$event1, $event2, $event3], $listener2->getReceivedEvents());
+        $this->assertReceivedParameters($listener1, '1', '3', '4', '5');
+        $this->assertReceivedParameters($listener2, '1', '2', '4', '5');
+
+        $dispatcher->dispatch('z', '6');
+
+        $this->assertReceivedParameters($listener1, '1', '3', '4', '5');
+        $this->assertReceivedParameters($listener2, '1', '2', '4', '5');
     }
 
     public function testListenerReceivesParameters()
     {
-        $type       = 'x';
-        $event      = new \StdClass();
+        $event      = 'test';
+        $parameters = ['a', 'b', 'c'];
         $dispatcher = new EventDispatcher();
 
-        $dispatcher->addListener($type, function($e, $t, $d) use ($event, $type, $dispatcher) {
-            $this->assertSame($event, $e);
-            $this->assertSame($type, $t);
-            $this->assertSame($dispatcher, $d);
+        $dispatcher->addListener($event, function() use ($parameters) {
+            $this->assertSame($parameters, func_get_args());
         });
 
-        $dispatcher->dispatch($type, $event);
+        call_user_func_array([$dispatcher, 'dispatch'], $parameters);
     }
 }

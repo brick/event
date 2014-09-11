@@ -29,16 +29,16 @@ final class EventDispatcher
      *
      * Every listener can stop event propagation by returning `false`.
      *
-     * @param string   $type     The event type.
+     * @param string   $event    The event name.
      * @param callable $listener The event listener.
      * @param integer  $priority The higher the priority, the earlier the listener will be called in the chain.
      *
      * @return void
      */
-    public function addListener($type, callable $listener, $priority = 0)
+    public function addListener($event, callable $listener, $priority = 0)
     {
-        $this->listeners[$type][$priority][] = $listener;
-        unset($this->sorted[$type]);
+        $this->listeners[$event][$priority][] = $listener;
+        unset($this->sorted[$event]);
     }
 
     /**
@@ -47,31 +47,25 @@ final class EventDispatcher
      * If the listener is not registered for this type, this method does nothing.
      * If the listener has been registered several times for this type, all instances are removed.
      *
-     * The listener will be called with 3 parameters:
-     *
-     * - The event : `object`
-     * - The event type : `string`
-     * - The event dispatcher: `EventDispatcher`
-     *
-     * @param string   $type     The event type.
+     * @param string   $event    The event name.
      * @param callable $listener The event listener.
      *
      * @return void
      */
-    public function removeListener($type, callable $listener)
+    public function removeListener($event, callable $listener)
     {
-        if (isset($this->listeners[$type])) {
-            foreach ($this->listeners[$type] as $priority => $listeners) {
-                foreach ($this->listeners[$type][$priority] as $key => $instance) {
+        if (isset($this->listeners[$event])) {
+            foreach ($this->listeners[$event] as $priority => $listeners) {
+                foreach ($this->listeners[$event][$priority] as $key => $instance) {
                     if ($instance === $listener) {
-                        unset($this->listeners[$type][$priority][$key]);
-                        unset($this->sorted[$type]);
+                        unset($this->listeners[$event][$priority][$key]);
+                        unset($this->sorted[$event]);
 
-                        if (empty($this->listeners[$type][$priority])) {
-                            unset($this->listeners[$type][$priority]);
+                        if (empty($this->listeners[$event][$priority])) {
+                            unset($this->listeners[$event][$priority]);
 
-                            if (empty($this->listeners[$type])) {
-                                unset($this->listeners[$type]);
+                            if (empty($this->listeners[$event])) {
+                                unset($this->listeners[$event]);
                             }
                         }
                     }
@@ -85,21 +79,21 @@ final class EventDispatcher
      *
      * Listeners are returned in the order they will be called.
      *
-     * @param string $type The event type.
+     * @param string $event The event name.
      *
      * @return callable[]
      */
-    public function getListeners($type)
+    public function getListeners($event)
     {
-        if (empty($this->listeners[$type])) {
+        if (empty($this->listeners[$event])) {
             return [];
         }
 
-        if (! isset($this->sorted[$type])) {
-            $this->sorted[$type] = $this->sortListeners($this->listeners[$type]);
+        if (! isset($this->sorted[$event])) {
+            $this->sorted[$event] = $this->sortListeners($this->listeners[$event]);
         }
 
-        return $this->sorted[$type];
+        return $this->sorted[$event];
     }
 
     /**
@@ -111,9 +105,9 @@ final class EventDispatcher
      */
     public function getAllListeners()
     {
-        foreach ($this->listeners as $type => $listeners) {
-            if (! isset($this->sorted[$type])) {
-                $this->sorted[$type] = $this->sortListeners($listeners);
+        foreach ($this->listeners as $event => $listeners) {
+            if (! isset($this->sorted[$event])) {
+                $this->sorted[$event] = $this->sortListeners($listeners);
             }
         }
 
@@ -126,15 +120,17 @@ final class EventDispatcher
      * The highest priority listeners will be called first.
      * If several listeners have the same priority, they will be called in the order they have been registered.
      *
-     * @param string $type  The event type.
-     * @param object $event The event to dispatch.
+     * @param string $event         The event name.
+     * @param mixed  ...$parameters The parameters to pass to the listeners.
      *
      * @return void
      */
-    public function dispatch($type, $event)
+    public function dispatch($event)
     {
-        foreach ($this->getListeners($type) as $listener) {
-            if ($listener($event, $type, $this) === false) {
+        $parameters = array_slice(func_get_args(), 1);
+
+        foreach ($this->getListeners($event) as $listener) {
+            if (call_user_func_array($listener, $parameters) === false) {
                 break;
             }
         }

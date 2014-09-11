@@ -32,8 +32,8 @@ Overview
 --------
 
 This package provides the `EventDispatcher`.
-The dispatcher dispatches *events*, that can be any `object`.
-The events are intercepted by *listeners*, that can be any `callable`.
+The dispatcher dispatches *events*: an event is a unique `string` along with optional parameters.
+The events are intercepted by *listeners*: any `callable` can be an event listener.
 
 ### Basic usage
 
@@ -53,24 +53,18 @@ And add a few listeners:
         echo 'Caught shutdown event';
     });
 
-Now, let's dispatch events. Typically, you'll create event classes to store information about what's occurring in your application, but for now, let's just dispatch a simple `StdClass`:
+Now, let's dispatch some events:
 
-    $dispatcher->dispatch('startup', new \StdClass()); // will display "Caught startup event"
-    $dispatcher->dispatch('shutdown', new \StdClass()); // will display "Caught shutdown event"
+    $dispatcher->dispatch('startup'); // will display "Caught startup event"
+    $dispatcher->dispatch('shutdown'); // will display "Caught shutdown event"
 
-When an event is dispatched, the dispatcher will look for listeners registered for the given event type, and call each of them with 3 parameters:
+Any additional parameters you pass to `dispatch()` are forwarded to the listeners:
 
-- The event : `object`
-- The event type : `string`
-- The event dispatcher : `EventDispatcher`
+    $dispatcher->addListener('test', function($a, $b) {
+        echo "Caught $a and $b";
+    });
 
-If we need this information, we can rewrite our listeners like this:
-
-    function($event, $type, $dispatcher) { ... }
-
-In our example, `$event` would contain the `StdClass` object, and `$type` would contain `'startup'` or `'shutdown'`.
-
-All the listeners registered for the given event type will be invoked, ordered by priority, unless one of the listeners stops the propagation.
+    $dispatcher->dispatch('test', 'Hello', 'World'); // will display "Caught Hello and World"
 
 ### Setting priorities
 
