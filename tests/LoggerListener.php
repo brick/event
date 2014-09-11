@@ -22,11 +22,13 @@ class LoggerListener
     private $stopPropagation = false;
 
     /**
+     * @param mixed ...$parameters
+     *
      * @return false|null
      */
-    public function __invoke()
+    public function __invoke(...$parameters)
     {
-        $this->receivedParameters = array_merge($this->receivedParameters, func_get_args());
+        $this->receivedParameters = array_merge($this->receivedParameters, $parameters);
 
         if ($this->stopPropagation) {
             return false;

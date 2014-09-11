@@ -31,9 +31,8 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
      * @param LoggerListener $listener      The logger listener.
      * @param mixed          ...$parameters The expected logged parameters.
      */
-    private function assertReceivedParameters(LoggerListener $listener)
+    private function assertReceivedParameters(LoggerListener $listener, ...$parameters)
     {
-        $parameters = array_slice(func_get_args(), 1);
         $this->assertSame($parameters, $listener->getReceivedParameters());
     }
 
@@ -241,10 +240,10 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
         $parameters = ['a', 'b', 'c'];
         $dispatcher = new EventDispatcher();
 
-        $dispatcher->addListener($event, function() use ($parameters) {
-            $this->assertSame($parameters, func_get_args());
+        $dispatcher->addListener($event, function(...$actual) use ($parameters) {
+            $this->assertSame($parameters, $actual);
         });
 
-        call_user_func_array([$dispatcher, 'dispatch'], $parameters);
+        $dispatcher->dispatch($event, ...$parameters);
     }
 }

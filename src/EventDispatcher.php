@@ -125,12 +125,10 @@ final class EventDispatcher
      *
      * @return void
      */
-    public function dispatch($event)
+    public function dispatch($event, ...$parameters)
     {
-        $parameters = array_slice(func_get_args(), 1);
-
         foreach ($this->getListeners($event) as $listener) {
-            if (call_user_func_array($listener, $parameters) === false) {
+            if ($listener(...$parameters) === false) {
                 break;
             }
         }
@@ -145,6 +143,6 @@ final class EventDispatcher
     {
         krsort($listenersByPriority);
 
-        return call_user_func_array('array_merge', $listenersByPriority);
+        return array_merge(...$listenersByPriority);
     }
 }

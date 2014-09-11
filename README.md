@@ -1,3 +1,7 @@
+###### This development branch uses variadics, and thus restricts compatibility to PHP 5.6
+
+---
+
 Brick\Event
 ===========
 
@@ -26,7 +30,7 @@ Just define the following requirement in your `composer.json` file:
 Requirements
 ------------
 
-This library requires PHP 5.4 or higher. [HHVM](http://hhvm.com/) is officially supported.
+This library requires PHP 5.6 or [HHVM](http://hhvm.com/) 3.2.
 
 Overview
 --------
