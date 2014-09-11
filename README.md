@@ -3,8 +3,8 @@ Brick\Event
 
 A simple event dispatching mechanism.
 
-[![Build Status](https://secure.travis-ci.org/brick/event.png)](http://travis-ci.org/brick/event)
-[![Coverage Status](https://coveralls.io/repos/brick/event/badge.png)](https://coveralls.io/r/brick/event)
+[![Build Status](https://secure.travis-ci.org/brick/event.png?branch=master)](http://travis-ci.org/brick/event)
+[![Coverage Status](https://coveralls.io/repos/brick/event/badge.png?branch=master)](https://coveralls.io/r/brick/event?branch=master)
 
 Introduction
 ------------
