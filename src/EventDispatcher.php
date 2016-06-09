@@ -31,7 +31,7 @@ final class EventDispatcher
      *
      * @param string   $event    The event name.
      * @param callable $listener The event listener.
-     * @param integer  $priority The higher the priority, the earlier the listener will be called in the chain.
+     * @param int      $priority The higher the priority, the earlier the listener will be called in the chain.
      *
      * @return void
      */

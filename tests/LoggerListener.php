@@ -17,7 +17,7 @@ class LoggerListener
     /**
      * Whether this listener should stop event propagation after recording the event.
      *
-     * @var boolean
+     * @var bool
      */
     private $stopPropagation = false;
 
@@ -44,11 +44,11 @@ class LoggerListener
     }
 
     /**
-     * @param boolean $stopPropagation
+     * @param bool $stopPropagation
      *
      * @return void
      */
-    public function setStopPropagation($stopPropagation)
+    public function setStopPropagation(bool $stopPropagation)
     {
         $this->stopPropagation = $stopPropagation;
     }
