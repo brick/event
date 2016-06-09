@@ -35,7 +35,7 @@ final class EventDispatcher
      *
      * @return void
      */
-    public function addListener($event, callable $listener, $priority = 0)
+    public function addListener(string $event, callable $listener, int $priority = 0)
     {
         $this->listeners[$event][$priority][] = $listener;
         unset($this->sorted[$event]);
@@ -52,7 +52,7 @@ final class EventDispatcher
      *
      * @return void
      */
-    public function removeListener($event, callable $listener)
+    public function removeListener(string $event, callable $listener)
     {
         if (isset($this->listeners[$event])) {
             foreach ($this->listeners[$event] as $priority => $listeners) {
@@ -83,7 +83,7 @@ final class EventDispatcher
      *
      * @return callable[]
      */
-    public function getListeners($event)
+    public function getListeners(string $event)
     {
         if (empty($this->listeners[$event])) {
             return [];
@@ -125,26 +125,24 @@ final class EventDispatcher
      *
      * @return void
      */
-    public function dispatch($event)
+    public function dispatch(string $event, ...$parameters)
     {
-        $parameters = array_slice(func_get_args(), 1);
-
         foreach ($this->getListeners($event) as $listener) {
-            if (call_user_func_array($listener, $parameters) === false) {
+            if ($listener(...$parameters) === false) {
                 break;
             }
         }
     }
 
     /**
-     * @param string $listenersByPriority
+     * @param array $listenersByPriority
      *
      * @return array
      */
-    private function sortListeners($listenersByPriority)
+    private function sortListeners(array $listenersByPriority)
     {
         krsort($listenersByPriority);
 
-        return call_user_func_array('array_merge', $listenersByPriority);
+        return array_merge(...$listenersByPriority);
     }
 }
