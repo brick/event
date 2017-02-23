@@ -4,10 +4,12 @@ namespace Brick\Event\Tests;
 
 use Brick\Event\EventDispatcher;
 
+use PHPUnit\Framework\TestCase;
+
 /**
  * Unit tests for class EventDispatcher.
  */
-class EventDispatcherTest extends \PHPUnit_Framework_TestCase
+class EventDispatcherTest extends TestCase
 {
     /**
      * @param EventDispatcher $dispatcher
