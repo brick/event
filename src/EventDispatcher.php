@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Brick\Event;
 
 /**
@@ -35,7 +37,7 @@ final class EventDispatcher
      *
      * @return void
      */
-    public function addListener(string $event, callable $listener, int $priority = 0)
+    public function addListener(string $event, callable $listener, int $priority = 0) : void
     {
         $this->listeners[$event][$priority][] = $listener;
         unset($this->sorted[$event]);
@@ -52,7 +54,7 @@ final class EventDispatcher
      *
      * @return void
      */
-    public function removeListener(string $event, callable $listener)
+    public function removeListener(string $event, callable $listener) : void
     {
         if (isset($this->listeners[$event])) {
             foreach ($this->listeners[$event] as $priority => $listeners) {
@@ -83,7 +85,7 @@ final class EventDispatcher
      *
      * @return callable[]
      */
-    public function getListeners(string $event)
+    public function getListeners(string $event) : array
     {
         if (empty($this->listeners[$event])) {
             return [];
@@ -103,7 +105,7 @@ final class EventDispatcher
      *
      * @return callable[][]
      */
-    public function getAllListeners()
+    public function getAllListeners() : array
     {
         foreach ($this->listeners as $event => $listeners) {
             if (! isset($this->sorted[$event])) {
@@ -125,7 +127,7 @@ final class EventDispatcher
      *
      * @return void
      */
-    public function dispatch(string $event, ...$parameters)
+    public function dispatch(string $event, ...$parameters) : void
     {
         foreach ($this->getListeners($event) as $listener) {
             if ($listener(...$parameters) === false) {
@@ -139,7 +141,7 @@ final class EventDispatcher
      *
      * @return array
      */
-    private function sortListeners(array $listenersByPriority)
+    private function sortListeners(array $listenersByPriority) : array
     {
         krsort($listenersByPriority);
 
