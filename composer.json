@@ -17,7 +17,11 @@
     },
     "autoload": {
         "psr-4": {
-            "Brick\\Event\\": "src/",
+            "Brick\\Event\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "Brick\\Event\\Tests\\": "tests/"
         }
     }
