@@ -18,14 +18,11 @@ This library helps to write extensible software by plugging in external listener
 Installation
 ------------
 
-This library is installable via [Composer](https://getcomposer.org/).
-Just define the following requirement in your `composer.json` file:
+This library is installable via [Composer](https://getcomposer.org/):
 
-    {
-        "require": {
-            "brick/event": "0.1.*"
-        }
-    }
+```bash
+composer require brick/event
+```
 
 Requirements
 ------------
