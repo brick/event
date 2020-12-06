@@ -19,7 +19,7 @@ class EventDispatcherTest extends TestCase
     {
         $allListeners = $dispatcher->getAllListeners();
 
-        $this->assertInternalType('array', $allListeners);
+        $this->assertIsArray($allListeners);
         $this->assertCount(count($listeners), $allListeners);
 
         foreach ($listeners as $type => $expected) {
